@@ -56,7 +56,13 @@ fi
 
 # Pull latest changes
 echo -e "${GREEN}[+]${NC} Pulling latest updates from GitHub..."
-if git pull origin master; then
+# Determine the default branch dynamically
+DEFAULT_BRANCH=$(git remote show origin | sed -n '/HEAD branch/s/.*: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then
+    DEFAULT_BRANCH="master"
+fi
+echo -e "${BLUE}[*]${NC} Using branch: $DEFAULT_BRANCH"
+if git pull origin "$DEFAULT_BRANCH"; then
     echo -e "${GREEN}[+]${NC} Metasploit Framework successfully updated!"
 else
     echo -e "${YELLOW}[!] Update may have encountered issues.${NC}"

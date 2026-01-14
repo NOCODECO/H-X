@@ -45,13 +45,16 @@ if [ -d "$INSTALL_DIR" ]; then
     echo -e "${YELLOW}[!] Installation directory already exists.${NC}"
     read -p "Do you want to remove it and reinstall? (y/N): " -n 1 -r
     echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${BLUE}[*]${NC} Removing existing installation..."
-        rm -rf "$INSTALL_DIR"
-    else
-        echo -e "${YELLOW}[!] Installation cancelled.${NC}"
-        exit 0
-    fi
+    case "$REPLY" in
+        [Yy]*)
+            echo -e "${BLUE}[*]${NC} Removing existing installation..."
+            rm -rf "$INSTALL_DIR"
+            ;;
+        *)
+            echo -e "${YELLOW}[!] Installation cancelled.${NC}"
+            exit 0
+            ;;
+    esac
 fi
 
 # Create installation directory
