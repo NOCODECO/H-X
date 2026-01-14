@@ -30,9 +30,15 @@ class AntigravityTool:
             desktop = os.path.join(home, "Desktop")
         else:  # Linux and others
             desktop = os.path.join(home, "Desktop")
-            # Some Linux distributions use different paths
+            # Some Linux distributions use different localized paths
             if not os.path.exists(desktop):
-                desktop = os.path.join(home, "Рабочий стол")  # Russian
+                # Try common localized desktop folder names
+                localized_names = ["Рабочий стол", "Escritorio", "Bureau", "Schreibtisch", "デスクトップ"]
+                for name in localized_names:
+                    localized_path = os.path.join(home, name)
+                    if os.path.exists(localized_path):
+                        desktop = localized_path
+                        break
             if not os.path.exists(desktop):
                 desktop = home  # Fallback to home directory
         
@@ -66,14 +72,14 @@ class AntigravityTool:
         if not os.path.exists(self.desktop_path):
             print(f"[!] Error: Desktop path not found: {self.desktop_path}")
             print(f"[*] Using home directory instead: {Path.home()}")
-            self.desktop_path = str(Path.home())
-            self.install_path = os.path.join(self.desktop_path, "metasploit-framework")
+            # Update both instance variables for consistency
+            self.__init__()  # Reinitialize with updated paths
         
         # Check if metasploit already exists
         if os.path.exists(self.install_path):
             print(f"[!] Metasploit Framework already exists at: {self.install_path}")
             response = input("[?] Do you want to update it? (y/n): ")
-            if response.lower() == 'y':
+            if response.lower() in ['y', 'yes']:
                 return self.update_metasploit()
             else:
                 print("[*] Aborted")
@@ -100,15 +106,30 @@ class AntigravityTool:
         print(f"[*] Updating Metasploit Framework at: {self.install_path}")
         
         try:
+            # Fetch latest changes
             subprocess.run(
-                ["git", "-C", self.install_path, "pull"],
+                ["git", "-C", self.install_path, "fetch", "origin"],
+                check=True
+            )
+            # Reset to latest origin/master (handles detached HEAD from shallow clone)
+            subprocess.run(
+                ["git", "-C", self.install_path, "reset", "--hard", "origin/master"],
                 check=True
             )
             print(f"[+] Successfully updated Metasploit Framework")
             return True
         except subprocess.CalledProcessError as e:
             print(f"[!] Error updating repository: {e}")
-            return False
+            print(f"[*] Attempting standard pull...")
+            try:
+                subprocess.run(
+                    ["git", "-C", self.install_path, "pull"],
+                    check=True
+                )
+                print(f"[+] Successfully updated Metasploit Framework")
+                return True
+            except subprocess.CalledProcessError:
+                return False
     
     def display_info(self):
         """Display information about Metasploit Framework"""
