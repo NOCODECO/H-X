@@ -1,0 +1,23 @@
+# Temporary files
+*.tmp
+*.log
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Test directories
+/tmp/
+test-install/
+
+# Local Metasploit installations (should be on user's desktop, not in repo)
+metasploit-framework/
+H-X-Metasploit/
